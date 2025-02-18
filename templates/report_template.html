@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meta Tags Check Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .result { margin-bottom: 40px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 25px; }
+        .meta-section { margin: 20px 0; }
+        .preview-card { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 15px 0; }
+        .google-preview { font-family: Arial, sans-serif; }
+        .google-preview .title { color: #1a0dab; font-size: 20px; }
+        .google-preview .url { color: #006621; font-size: 14px; }
+        .google-preview .description { color: #545454; font-size: 14px; }
+        .facebook-preview { 
+            max-width: 500px;
+            background: #fff;
+            border: 1px solid #dadde1;
+            border-radius: 0;
+            font-family: -apple-system, BlinkMacSystemFont, Helvetica, Arial, sans-serif;
+        }
+        .facebook-preview .content { 
+            padding: 10px 12px;
+            border-top: 1px solid #dadde1; 
+        }
+        .facebook-preview .domain {
+            color: #606770;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .facebook-preview .title {
+            color: #1d2129;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 20px;
+            margin-bottom: 3px;
+        }
+        .facebook-preview .description {
+            color: #606770;
+            font-size: 14px;
+            line-height: 20px;
+        }
+        .twitter-preview {
+            max-width: 500px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .twitter-preview.summary { max-width: 400px; }
+        .twitter-preview.summary_large_image img { height: 261px; }
+        .twitter-preview .content {
+            padding: 12px;
+            border: 1px solid #e1e8ed;
+            border-top: 0;
+            background: #fff;
+        }
+        .linkedin-preview { background: white; border: 1px solid #e1e8ed; }
+        .meta-data { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .image-info { background: #e9ecef; padding: 10px; border-radius: 4px; margin: 5px 0; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .pinterest-preview { 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            max-width: 236px; 
+        }
+        .pinterest-preview img { 
+            width: 100%; 
+            border-radius: 8px 8px 0 0; 
+        }
+        .pinterest-preview .content { 
+            padding: 10px; 
+            font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,"ヒラギノ角ゴ Pro W3","Hiragino Kaku Gothic Pro",メイリオ,Meiryo,"ＭＳ Ｐゴシック",Arial,sans-serif;
+        }
+        .slack-preview {
+            background: white;
+            border-left: 4px solid #ddd;
+            padding: 10px;
+            font-family: 'Lato', sans-serif;
+        }
+        .slack-preview .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .slack-preview img {
+            max-width: 400px;
+            max-height: 200px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Meta Tags Check Report</h1>
+    <p>Generated: {{ generated_date }}</p>
+
+    {% for result in results %}
+    <div class="result">
+        <h2>URL: {{ result.url }}</h2>
+        <p>Checked at: {{ result.timestamp }}</p>
+
+        <div class="preview-section">
+            <h3>Google Search Preview</h3>
+            <div class="preview-card google-preview">
+                <div class="title">{{ result.meta_tags.get('title', '') }}</div>
+                <div class="url">{{ result.url }}</div>
+                <div class="description">{{ result.meta_tags.get('description', '') }}</div>
+            </div>
+
+            <h3>Facebook Preview</h3>
+            <div class="preview-card facebook-preview">
+                <div class="image-container">
+                    {% if result.social_previews.og.get('og:image') %}
+                    <img src="{{ result.social_previews.og.get('og:image') }}" alt="og image">
+                    {% endif %}
+                </div>
+                <div class="content">
+                    <div class="domain">{{ result.url | urlparse }}</div>
+                    <div class="title">{{ result.social_previews.og.get('og:title', '') }}</div>
+                    <div class="description">{{ result.social_previews.og.get('og:description', '') }}</div>
+                </div>
+            </div>
+
+            <h3>Twitter Card ({{ result.social_previews.card_types.twitter }})</h3>
+            <div class="preview-card twitter-preview {{ result.social_previews.card_types.twitter }}">
+                {% if result.social_previews.twitter.get('twitter:image') %}
+                <img src="{{ result.social_previews.twitter.get('twitter:image') }}" alt="twitter image">
+                {% endif %}
+                <div class="content">
+                    <div class="title">{{ result.social_previews.twitter.get('twitter:title', '') }}</div>
+                    <div class="description">{{ result.social_previews.twitter.get('twitter:description', '') }}</div>
+                    <div class="domain">{{ result.url | urlparse }}</div>
+                </div>
+            </div>
+
+            <h3>LinkedIn Preview</h3>
+            <div class="preview-card linkedin-preview">
+                {% if result.social_previews.og.get('og:image') %}
+                <img src="{{ result.social_previews.og.get('og:image') }}" alt="linkedin image">
+                {% endif %}
+                <div class="content">
+                    <div class="title">{{ result.social_previews.og.get('og:title', '') }}</div>
+                    <div class="description">{{ result.social_previews.og.get('og:description', '') }}</div>
+                </div>
+            </div>
+
+            <h3>Pinterest Preview</h3>
+            <div class="preview-card pinterest-preview">
+                {% if result.social_previews.og.get('og:image') %}
+                <img src="{{ result.social_previews.og.get('og:image') }}" alt="pinterest image">
+                {% endif %}
+                <div class="content">
+                    <div class="title">{{ result.social_previews.og.get('og:title', '') }}</div>
+                    <div class="description">{{ result.meta_tags.get('description', '') }}</div>
+                    <div class="site-name">{{ result.social_previews.og.get('og:site_name', '') }}</div>
+                </div>
+            </div>
+
+            <h3>Slack Preview</h3>
+            <div class="preview-card slack-preview">
+                <div class="title">{{ result.social_previews.og.get('og:title', '') }}</div>
+                <div class="description">{{ result.social_previews.og.get('og:description', '') }}</div>
+                {% if result.social_previews.og.get('og:image') %}
+                <img src="{{ result.social_previews.og.get('og:image') }}" alt="slack image">
+                {% endif %}
+                <div class="url">{{ result.url }}</div>
+            </div>
+        </div>
+
+        <div class="meta-section">
+            <h3>Technical Information</h3>
+            <div class="meta-data">
+                <h4>Image Dimensions</h4>
+                <div class="image-info">
+                    <p>OpenGraph Image: {{ result.image_info.og_image_dimensions }}</p>
+                    <p>Twitter Image: {{ result.image_info.twitter_image_dimensions }}</p>
+                </div>
+                {% if result.meta_tags.get('canonical') %}
+                <h4>Canonical URL</h4>
+                <p>{{ result.meta_tags.get('canonical') }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</body>
+</html>
